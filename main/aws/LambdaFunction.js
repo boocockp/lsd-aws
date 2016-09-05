@@ -1,6 +1,7 @@
 let fs = require('fs')
 let AwsResource = require('./AwsResource')
 let Lambda = () => require('./Lambda')
+const {retry} = require('./Util')
 
 module.exports = class LambdaFunction extends AwsResource {
     constructor(lambda, nameInEnv, codeZipFile) {
@@ -41,7 +42,7 @@ module.exports = class LambdaFunction extends AwsResource {
             MemorySize: 128
         }
 
-        return this.role.create().then( () => this.aws.createFunction(params).promise() )
+        return this.role.create().then( () => retry( () => this.aws.createFunction(params).promise() ) )
     }
 
 
