@@ -4,8 +4,6 @@ let ReceiptRule = require('./ReceiptRule');
 
 module.exports = class SES {
 
-
-
     constructor(instance) {
         this.instance = instance;
         this.ses = this.awsService = new AWS.SES();

@@ -2,8 +2,10 @@ let AWS = require('aws-sdk');
 let DnsRecord = require('./DnsRecord');
 
 module.exports = class Route53 {
-    constructor(env) {
-        this.instance = env;
+    constructor(instance, hostedZoneId, domainName) {
+        this.instance = instance
+        this.hostedZoneId = hostedZoneId
+        this.domainName = domainName
         this.route53 = this.awsService = new AWS.Route53();
     }
 

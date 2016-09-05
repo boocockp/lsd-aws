@@ -4,8 +4,8 @@ let Role = require('./Role');
 
 module.exports = class IAM {
 
-    constructor(env) {
-        this.instance = env;
+    constructor(instance) {
+        this.instance = instance;
         this.iam = this.awsService = new AWS.IAM();
         this.basicExecution = this.policy("basicExecution").allow(IAM.allLogs, IAM.createLogGroup, IAM.createLogStream, IAM.putLogEvents);
     }

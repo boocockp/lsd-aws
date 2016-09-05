@@ -3,8 +3,8 @@ let IdentityPool = require('./IdentityPool')
 
 module.exports = class Cognito {
 
-    constructor(env) {
-        this.instance = env
+    constructor(instance) {
+        this.instance = instance
         this.cognito = this.awsService = new AWS.CognitoIdentity()
     }
 

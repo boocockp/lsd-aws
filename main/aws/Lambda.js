@@ -2,8 +2,8 @@ let AWS = require('aws-sdk');
 let LambdaFunction = require('./LambdaFunction');
 
 module.exports = class Lambda {
-    constructor(env) {
-        this.instance = env;
+    constructor(instance) {
+        this.instance = instance;
         this.lambda = this.awsService = new AWS.Lambda();
     }
 

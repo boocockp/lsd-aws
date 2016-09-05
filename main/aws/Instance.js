@@ -5,6 +5,7 @@ const S3 = require('./S3')
 const IAM = require('./IAM')
 const Cognito = require('./Cognito')
 const Lambda = require('./Lambda')
+const Route53 = require('./Route53')
 const Role = require('./Role')
 const ObjectInS3 = require('./ObjectInS3')
 
@@ -14,10 +15,10 @@ function logResult(r) {
 
 module.exports = class Instance {
 
-    constructor(appName, instanceName, accountId) {
-        Object.assign(this, {appName, instanceName, accountId})
+    constructor(appName, instanceName, accountId, hostedZoneId, domainName) {
+        Object.assign(this, {appName, instanceName, accountId, hostedZoneId, domainName})
         this.region = AWS.config.region
-        console.log("Account Id", this.accountId, "Region", this.region)
+        console.log("Instance", this.instanceName, "Account Id", this.accountId, "Region", this.region, "Hosted zone id", this.hostedZoneId, "Domain name", this.domainName)
         this.resources = []
     }
 
@@ -51,6 +52,7 @@ module.exports = class Instance {
     get ses() { return this._ses || (this._ses = new SES(this)) }
     get cognito() { return this._cognito || (this._cognito = new Cognito(this)) }
     get lambda() { return this._lambda || (this._lambda = new Lambda(this)) }
+    get route53() { return this._route53 || (this._route53 = new Route53(this, this.hostedZoneId, this.domainName)) }
 
 }
 
