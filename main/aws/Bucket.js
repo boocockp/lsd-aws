@@ -10,7 +10,7 @@ module.exports = class Bucket extends AwsResource {
     }
 
     get name() {
-        return super.name.replace(/_/g, '-')
+        return this._websiteHostName ? this._websiteHostName : super.name.replace(/_/g, '-')
     }
 
     get arn() {
@@ -49,8 +49,9 @@ module.exports = class Bucket extends AwsResource {
         return this
     }
 
-    forWebsite() {
+    forWebsite(hostName) {
         this._forWebsite = true
+        this._websiteHostName = hostName
         this._statements.push({
             Effect: "Allow",
             Principal: "*",

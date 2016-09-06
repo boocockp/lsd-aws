@@ -4,10 +4,10 @@ let {logError} = require('./Util')
 
 module.exports = class DnsRecord extends AwsResource {
 
-    constructor(route53, type, hostname, target) {
-        super(route53, `${type}_${hostname}`)
+    constructor(route53, type, hostName, target) {
+        super(route53, `${type}_${hostName}`)
         this.type = type
-        this.hostname = hostname
+        this.hostName = hostName
         this.target = target
 
         if (!target instanceof Bucket) {
@@ -19,28 +19,24 @@ module.exports = class DnsRecord extends AwsResource {
         return null;
     }
 
-    get domainName() {
-        const route53 = this.resourceFactory
-        return `${this.hostname}.${route53.domainName}`
-    }
-
     requestResource() {
         const route53 = this.resourceFactory
         const params = {
             HostedZoneId: route53.hostedZoneId,
-            MaxItems: "1",
-            StartRecordName: this.domainName,
+            StartRecordName: this.hostName,
             StartRecordType: this.type
         }
-        const checkRecordSet = (data) => {
-            if (data.length === 1) {
-                return data.ResourceRecordSets[0]
-            } else {
+        const findRecordSet = (data) => {
+            const nameInRecordSet = this.hostName + "."
+            const recordSet = data.ResourceRecordSets.find( it => it.Name === nameInRecordSet && it.Type === this.type )
+            if (!recordSet) {
                 throw {code: this.resourceNotFoundCode}
             }
 
+            return recordSet
         }
-        return this.aws.listResourceRecordSets(params).promise().then(checkRecordSet, logError)
+        return this.aws.listResourceRecordSets(params).promise().then(findRecordSet, logError)
+
     }
 
     createResource() {
@@ -53,17 +49,17 @@ module.exports = class DnsRecord extends AwsResource {
                     {
                         Action: 'UPSERT',
                         ResourceRecordSet: {
-                            Name: this.domainName,
+                            Name: this.hostName,
                             Type: this.type,
                             AliasTarget: {
-                                DNSName: `${this.target.name}.s3-website-${region}.amazonaws.com`,
+                                DNSName: `s3-website-${region}.amazonaws.com`,
                                 EvaluateTargetHealth: false,
-                                HostedZoneId: this._s3HostedZoneId(region)
+                                HostedZoneId: DnsRecord._s3HostedZoneId(region)
                             }
                         }
                     }
                 ],
-                Comment: 'Created by LSD'
+                Comment: `LSD added ${this.hostName}`
             },
             HostedZoneId: route53.hostedZoneId
         }
@@ -79,7 +75,36 @@ module.exports = class DnsRecord extends AwsResource {
         // nothing to do
     }
 
-    _s3HostedZoneId(region) {
+
+    destroyResource() {
+        // TODO only for website bucket
+        const route53 = this.resourceFactory
+        const region = route53.instance.region
+        const params = {
+            ChangeBatch: {
+                Changes: [
+                    {
+                        Action: 'DELETE',
+                        ResourceRecordSet: {
+                            Name: this.hostName,
+                            Type: this.type,
+                            AliasTarget: {
+                                DNSName: `s3-website-${region}.amazonaws.com`,
+                                EvaluateTargetHealth: false,
+                                HostedZoneId: DnsRecord._s3HostedZoneId(region)
+                            }
+                        }
+                    }
+                ],
+                Comment: `LSD deleted ${this.hostName}`
+            },
+            HostedZoneId: route53.hostedZoneId
+        }
+
+        return this.aws.changeResourceRecordSets(params).promise()
+    }
+
+    static _s3HostedZoneId(region) {
         return {
             "us-east-1": "Z3AQBSTGFYJSTF",
             "us-west-1": "Z2F56UZL2M1ACD",
