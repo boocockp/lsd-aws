@@ -1,5 +1,6 @@
 .idea/
 *.iml
+design/
 node_modules
 
 stuff/
