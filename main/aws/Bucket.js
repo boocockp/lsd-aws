@@ -1,5 +1,5 @@
 let AwsResource = require('./AwsResource')
-let {arnFromResource}  = require('./Util')
+let {arnFromResource, wait, retry}  = require('./Util')
 
 module.exports = class Bucket extends AwsResource {
 
@@ -91,7 +91,7 @@ module.exports = class Bucket extends AwsResource {
     }
 
     createResource() {
-        return this.aws.createBucket({Bucket: this.name}).promise()
+        return this.aws.createBucket({Bucket: this.name}).promise().then( () => retry( () => this.requestResource() ) )
     }
 
     postCreateResource() {
@@ -213,6 +213,9 @@ module.exports = class Bucket extends AwsResource {
             WebsiteConfiguration: {
                 IndexDocument: {
                     Suffix: 'index.html'
+                },
+                ErrorDocument: {
+                    Key: 'index.html'
                 }
             }
         }).promise()
