@@ -1,18 +1,22 @@
 const fs = require('fs')
 
 const {Instance, S3, Lambda, Policy, Tools} = require('lsd-aws')
-const Apps = require('../main/js/apps/Apps')
+const Apps = require('./path/to/Apps')
 
 function defineInstance(instanceName) {
     Tools.configureFromFile('./awsConfig.json')
     const appConfig = JSON.parse(fs.readFileSync('./appConfig.json', "utf8"))
 
-    const instance = new Instance(appConfig.appName, instanceName, Tools.getConfig().accountId)
-    const {s3, cognito, iam, lambda} = instance
+    const awsConfig = Tools.getConfig()
+    const instance = new Instance(appConfig.appName, instanceName, awsConfig.accountId, awsConfig.hostedZoneId, appConfig.domain)
+    const {s3, cognito, iam, lambda, route53} = instance
 
     const userArea = Apps.defaultUserAreaPrefix, sharedArea = Apps.defaultSharedAreaPrefix
     const allUserAreas = `${appConfig.appName}/*/${userArea}`
-    const websiteBucket = s3.bucket("site").forWebsite()
+    const mainDataSetUserAreas = `${appConfig.appName}/main/${userArea}`
+    const websiteHostName = `${instanceName}.${appConfig.domain}`
+    const websiteBucket = s3.bucket().forWebsite(websiteHostName)
+    route53.dnsRecord("A", websiteHostName, websiteBucket)
     const dataBucket = s3.bucket("data").allowCors()
         .archiveOnDestroy(instanceName === "prod")
     const idPool = cognito.identityPool("idPool", appConfig.googleClientId)
@@ -34,7 +38,7 @@ function defineInstance(instanceName) {
     const promoterRole = iam.role("promoter").trust(Lambda).withPolicies(iam.basicExecution, promoterPolicy);
     const promoter = lambda.lambdaFunction("promoter", "../build_lambda/promoter/index.zip").withRole(promoterRole).canBeInvokedBy(S3)
 
-    dataBucket.notifyLambda(promoter, S3.objectCreated, allUserAreas)
+    dataBucket.notifyLambda(promoter, S3.objectCreated, mainDataSetUserAreas)
 
     return instance
 }

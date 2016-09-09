@@ -1,7 +1,7 @@
 {
   "name": "lsd-aws",
-  "description": "lsd-aws",
-  "version": "0.0.1-26",
+  "description": "Simplifies writing scripts to set up AWS objects for LSD applications",
+  "version": "0.1.0",
   "scripts": {
     "build": "babel main -d dist",
     "build-dev": "npm run build && npm version prerelease --no-git-tag",
@@ -27,6 +27,9 @@
     "sinon": "^1.17.4",
     "sinon-chai": "^2.8.0"
   },
-  "repository": "http://none",
-  "license": "UNLICENSED"
+  "repository": {
+    "type": "git",
+    "url": " https://github.com/lightweight-software-development/lsd-aws.git"
+  },
+  "license": "MIT"
 }
