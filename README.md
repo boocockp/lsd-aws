@@ -10,7 +10,7 @@ For an application, you can create as many *instances* as you want.  Each instan
 but with a unique name for the instance.  You can create as many instances as you like, up to the limits of your AWS account,
 and destroy them when they are no longer needed.  There are no charges for setting up AWS objects - just for using them.  
 You could have instances such as "qa", "demo", "prod", like a traditional series of development environments,
-but you could also create one-off instances like "jims_spike2", or just use a short Git commit id to name the environment, like "a2ef".
+but you could also create one-off instances like "jims_spike2", or just use a short Git commit id to name the instance, like "a2ef".
 
 ## How it works
 LSD AWS includes classes to represent:
@@ -42,12 +42,12 @@ The AWS objects created have a name of the form <application-name>_<instance-nam
 ## Running a deployment script
 On the command line, run `node createInstance.js <env-name>` to set up an instance, and `node destroyInstance.js <env-name>` to tear down an instance.
 
-If you run createInstance.js when the instance already exists, it will just report that all the objects are found and not do anything.  
+If you run `createInstance.js` when the instance already exists, it will just report that all the objects are found and not do anything.  
 LSD AWS does not currently try to update existing objects, except for Lambda Functions.  If you change a definition, you will usually
 need to destroy the instance and start again.  Instance creation occasionally fails due to timing problems 
 (AWS can report an object as created but it is not ready for use for several seconds).  If this happens, destroy the instance and recreate it.
 
-If you are continually destroying and recreating an instance with the same name, the `node recreateInstance.js <env-name>` script may be useful.
+If you are repeatedly destroying and recreating an instance with the same name during development, the `node recreateInstance.js <env-name>` script may be useful.
 
 ## An example defineInstance.js 
 
