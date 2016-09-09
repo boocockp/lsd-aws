@@ -3,7 +3,7 @@ LSD AWS
 
 A set of components to simplify writing scripts to set up AWS objects for [LSD](https://github.com/lightweight-software-development/lsd-overview) applications.
 
-It does not attempt to be a comprehensive AWS scripting tool - it includes only the AWS services
+LSD AWS does not attempt to be a comprehensive AWS scripting tool - it includes only the AWS services
 and types of configuration that are needed in LSD applications.  However, it should be possible to extend it to cover any AWS service.
 
 For an application, you can create as many *instances* as you want.  Each instance has the same set of AWS objects configured, 
